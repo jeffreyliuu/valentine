@@ -35,7 +35,7 @@
 </head>
 <body class="gradient-background">
   <div class="flex items-center justify-center h-screen relative">
-    <!-- Added an ID around this container so we can exclude it from the "No" button's random placement. -->
+    <!-- Center container so the "No" button can avoid overlapping -->
     <div id="centerContainer" class="flex flex-col items-center p-4">
       <img
         id="imageDisplay"
@@ -91,23 +91,23 @@
     // Show the question image on load
     imageDisplay.src = questionImage;
 
-    // "No" click counters and index
+    // "No" click counters and indices
     let noClickCount = 0;
     let sadImageIndex = 0;
+    let textIndex = 0;
 
-    // "Yes" button dimensions (it grows)
+    // "Yes" button dimensions (it grows each No)
     let yesButtonHeight = 48;
     let yesButtonWidth = 80;
     let yesFontSize = 20;
 
-    // "No" button dimensions (it shrinks)
+    // "No" button dimensions (it shrinks each No)
     let noButtonHeight = 48;
     let noButtonWidth = 80;
     let noFontSize = 20;
 
     // Overlap check helper
     function doRectanglesOverlap(rect1, rect2) {
-      // Return true if there's an overlap
       return !(
         rect1.right < rect2.left ||
         rect1.left > rect2.right ||
@@ -120,7 +120,6 @@
     function moveButtonRandomly(btn) {
       btn.style.position = 'absolute';
 
-      // Get bounding boxes to avoid (center container + yes button)
       const centerRect = centerContainer.getBoundingClientRect();
       const yesRect = yesButton.getBoundingClientRect();
 
@@ -136,18 +135,28 @@
         btn.style.left = randomX + 'px';
         btn.style.top = randomY + 'px';
 
-        // Check the new bounding rect for overlap
+        // Get new bounding rect and check for overlap
         const noRect = btn.getBoundingClientRect();
         const overlapsCenter = doRectanglesOverlap(noRect, centerRect);
         const overlapsYes = doRectanglesOverlap(noRect, yesRect);
 
-        // If neither overlaps, we found a valid position
+        // If no overlap, break out
         if (!overlapsCenter && !overlapsYes) {
-          break; 
+          break;
         }
         attempts++;
       }
     }
+
+    // Text array for cycling
+    const texts = [
+      "No",
+      "Are you sure?",
+      "Pookie please",
+      "Don't do this to me :(",
+      "You're breaking my heart",
+      "I'm gonna cry..."
+    ];
 
     noButton.addEventListener('click', () => {
       noClickCount++;
@@ -172,18 +181,10 @@
       noButton.style.width = `${noButtonWidth}px`;
       noButton.style.fontSize = `${noFontSize}px`;
 
-      // Change "No" button text
-      const texts = [
-        "No",
-        "Are you sure?",
-        "Pookie please",
-        "Don't do this to me :(",
-        "You're breaking my heart",
-        "I'm gonna cry..."
-      ];
-      if (noClickCount < texts.length) {
-        noButton.textContent = texts[noClickCount];
-      }
+      // Cycle "No" button text 
+      // (once it hits last text, it starts from first again)
+      noButton.textContent = texts[textIndex];
+      textIndex = (textIndex + 1) % texts.length;
 
       // After a few clicks, make the "No" button jump around
       if (noClickCount > 2) {
