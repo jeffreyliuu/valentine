@@ -35,7 +35,8 @@
 </head>
 <body class="gradient-background">
   <div class="flex items-center justify-center h-screen relative">
-    <div class="flex flex-col items-center p-4">
+    <!-- Added an ID around this container so we can exclude it from the "No" button's random placement. -->
+    <div id="centerContainer" class="flex flex-col items-center p-4">
       <img
         id="imageDisplay"
         src="" 
@@ -74,63 +75,104 @@
     const imageDisplay = document.getElementById('imageDisplay');
     const valentineQuestion = document.getElementById('valentineQuestion');
     const responseButtons = document.getElementById('responseButtons');
+    const centerContainer = document.getElementById('centerContainer');
 
-    // Define your image paths:
-    const questionImage = './images/questionImage.gif'; // Default question image on load
-    const happyImage = './images/happyImage.gif';       // Image shown when user presses "Yes"
-
-    // Folder of "sad" images to cycle through on "No" clicks
+    // Images
+    const questionImage = './images/questionImage.gif'; // Default question image
+    const happyImage = './images/happyImage.gif';       // Image for "Yes"
     const sadImages = [
       './images/sadImages/sad1.gif',
       './images/sadImages/sad2.gif',
       './images/sadImages/sad3.gif',
       './images/sadImages/sad4.gif',
       './images/sadImages/sad5.gif'
-      // Add as many as you have...
     ];
 
-    // On page load, show the question image
+    // Show the question image on load
     imageDisplay.src = questionImage;
 
+    // "No" click counters and index
+    let noClickCount = 0;
     let sadImageIndex = 0;
 
-    // Track how many times "No" is clicked
-    let noClickCount = 0;
+    // "Yes" button dimensions (it grows)
+    let yesButtonHeight = 48;
+    let yesButtonWidth = 80;
+    let yesFontSize = 20;
 
-    // Keep track of sizing for the "Yes" button
-    let buttonHeight = 48; // Starting height in pixels
-    let buttonWidth = 80;  // Starting width in pixels
-    let fontSize = 20;     // Starting font size in pixels
+    // "No" button dimensions (it shrinks)
+    let noButtonHeight = 48;
+    let noButtonWidth = 80;
+    let noFontSize = 20;
 
-    // Move "No" button to random positions (after some clicks)
+    // Overlap check helper
+    function doRectanglesOverlap(rect1, rect2) {
+      // Return true if there's an overlap
+      return !(
+        rect1.right < rect2.left ||
+        rect1.left > rect2.right ||
+        rect1.bottom < rect2.top ||
+        rect1.top > rect2.bottom
+      );
+    }
+
+    // Attempt to move "No" button to random positions (avoiding overlap)
     function moveButtonRandomly(btn) {
-      const maxX = window.innerWidth - btn.offsetWidth;
-      const maxY = window.innerHeight - btn.offsetHeight;
-      const randomX = Math.floor(Math.random() * maxX);
-      const randomY = Math.floor(Math.random() * maxY);
-
       btn.style.position = 'absolute';
-      btn.style.left = randomX + 'px';
-      btn.style.top = randomY + 'px';
+
+      // Get bounding boxes to avoid (center container + yes button)
+      const centerRect = centerContainer.getBoundingClientRect();
+      const yesRect = yesButton.getBoundingClientRect();
+
+      // We'll try up to 25 times for a valid position
+      let attempts = 0;
+      while (attempts < 25) {
+        const maxX = window.innerWidth - btn.offsetWidth;
+        const maxY = window.innerHeight - btn.offsetHeight;
+        const randomX = Math.floor(Math.random() * maxX);
+        const randomY = Math.floor(Math.random() * maxY);
+
+        // Temporarily place the button
+        btn.style.left = randomX + 'px';
+        btn.style.top = randomY + 'px';
+
+        // Check the new bounding rect for overlap
+        const noRect = btn.getBoundingClientRect();
+        const overlapsCenter = doRectanglesOverlap(noRect, centerRect);
+        const overlapsYes = doRectanglesOverlap(noRect, yesRect);
+
+        // If neither overlaps, we found a valid position
+        if (!overlapsCenter && !overlapsYes) {
+          break; 
+        }
+        attempts++;
+      }
     }
 
     noButton.addEventListener('click', () => {
       noClickCount++;
 
-      // Cycle through sad images in a loop
-      // (resets to 0 when index = sadImages.length)
+      // Cycle through sad images
       imageDisplay.src = sadImages[sadImageIndex];
       sadImageIndex = (sadImageIndex + 1) % sadImages.length;
 
-      // Grow the "Yes" button each click
-      buttonHeight += 35;
-      buttonWidth += 35;
-      fontSize += 25;
-      yesButton.style.height = `${buttonHeight}px`;
-      yesButton.style.width = `${buttonWidth}px`;
-      yesButton.style.fontSize = `${fontSize}px`;
+      // "Yes" button grows
+      yesButtonHeight += 35;
+      yesButtonWidth += 35;
+      yesFontSize += 25;
+      yesButton.style.height = `${yesButtonHeight}px`;
+      yesButton.style.width = `${yesButtonWidth}px`;
+      yesButton.style.fontSize = `${yesFontSize}px`;
 
-      // Change "No" button text each click
+      // "No" button shrinks
+      noButtonHeight = Math.max(10, noButtonHeight - 5);
+      noButtonWidth = Math.max(30, noButtonWidth - 5);
+      noFontSize = Math.max(10, noFontSize - 2);
+      noButton.style.height = `${noButtonHeight}px`;
+      noButton.style.width = `${noButtonWidth}px`;
+      noButton.style.fontSize = `${noFontSize}px`;
+
+      // Change "No" button text
       const texts = [
         "No",
         "Are you sure?",
