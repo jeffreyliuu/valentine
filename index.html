@@ -15,11 +15,9 @@
         rgba(255, 255, 255, 1) 100%
       );
     }
-
     .bounce2 {
       animation: bounce2 2s ease infinite;
     }
-
     @keyframes bounce2 {
       0%, 20%, 50%, 80%, 100% {
         transform: translateY(0);
@@ -31,11 +29,16 @@
         transform: translateY(-10px);
       }
     }
+    /* Force wrapping on the No button text if it gets smaller */
+    #noButton {
+      white-space: normal;
+      word-break: break-word;
+      text-align: center;
+    }
   </style>
 </head>
 <body class="gradient-background">
   <div class="flex items-center justify-center h-screen relative">
-    <!-- Center container so the "No" button can avoid overlapping -->
     <div id="centerContainer" class="flex flex-col items-center p-4">
       <img
         id="imageDisplay"
@@ -53,13 +56,13 @@
       <div class="flex gap-4 pt-[20px] items-center" id="responseButtons">
         <button
           id="yesButton"
-          class="bounce2 inline-flex items-center justify-center whitespace-nowrap rounded-md text-[20px] font-medium disabled:pointer-events-none disabled:opacity-50 hover:bg-green-400 min-h-12 min-w-[75px] px-4 py-2 bg-green-500 text-white transition"
+          class="bounce2 inline-flex items-center justify-center rounded-md text-[20px] font-medium disabled:pointer-events-none disabled:opacity-50 hover:bg-green-400 min-h-12 min-w-[75px] px-4 py-2 bg-green-500 text-white transition"
         >
           Yes
         </button>
         <button
           id="noButton"
-          class="inline-flex items-center justify-center whitespace-nowrap rounded-md text-[20px] font-medium transition disabled:pointer-events-none disabled:opacity-50 hover:bg-red-700 h-12 min-w-[75px] w-auto px-4 py-2 bg-red-500 text-white"
+          class="rounded-md font-medium transition disabled:pointer-events-none disabled:opacity-50 hover:bg-red-700 px-4 py-2 bg-red-500 text-white"
         >
           No
         </button>
@@ -91,17 +94,17 @@
     // Show the question image on load
     imageDisplay.src = questionImage;
 
-    // "No" click counters and indices
+    // "No" click counters/indices
     let noClickCount = 0;
     let sadImageIndex = 0;
     let textIndex = 0;
 
-    // "Yes" button dimensions (it grows each No)
+    // "Yes" button dimensions (grows on each No)
     let yesButtonHeight = 48;
     let yesButtonWidth = 80;
     let yesFontSize = 20;
 
-    // "No" button dimensions (it shrinks each No)
+    // "No" button dimensions (shrinks on each No)
     let noButtonHeight = 48;
     let noButtonWidth = 80;
     let noFontSize = 20;
@@ -116,7 +119,7 @@
       );
     }
 
-    // Attempt to move "No" button to random positions (avoiding overlap)
+    // Try placing "No" button at random (avoiding overlap)
     function moveButtonRandomly(btn) {
       btn.style.position = 'absolute';
 
@@ -135,12 +138,11 @@
         btn.style.left = randomX + 'px';
         btn.style.top = randomY + 'px';
 
-        // Get new bounding rect and check for overlap
+        // Check for overlap
         const noRect = btn.getBoundingClientRect();
         const overlapsCenter = doRectanglesOverlap(noRect, centerRect);
         const overlapsYes = doRectanglesOverlap(noRect, yesRect);
 
-        // If no overlap, break out
         if (!overlapsCenter && !overlapsYes) {
           break;
         }
@@ -181,12 +183,11 @@
       noButton.style.width = `${noButtonWidth}px`;
       noButton.style.fontSize = `${noFontSize}px`;
 
-      // Cycle "No" button text 
-      // (once it hits last text, it starts from first again)
+      // Cycle "No" button text
       noButton.textContent = texts[textIndex];
       textIndex = (textIndex + 1) % texts.length;
 
-      // After a few clicks, make the "No" button jump around
+      // After a few clicks, move "No" button randomly
       if (noClickCount > 2) {
         moveButtonRandomly(noButton);
       }
