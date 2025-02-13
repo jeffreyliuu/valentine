@@ -29,14 +29,14 @@
         transform: translateY(-10px);
       }
     }
-    /* Keep the No button a fixed width so all text remains on one line */
+    /* Force single-line text, hide overflow, but keep it fully visible by adjusting font size dynamically */
     #noButton {
-      width: 300px;       /* fixed width */
       white-space: nowrap; 
-      overflow: hidden;   /* prevent horizontal scrollbars */
+      overflow: hidden;
       text-align: center;
-      font-size: 16px;    /* adjust as needed */
       padding: 0.5rem;
+      display: inline-block; /* Ensure width changes take effect properly */
+      vertical-align: middle;
     }
   </style>
 </head>
@@ -102,12 +102,20 @@
     let sadImageIndex = 0;
     let textIndex = 0;
 
-    // "Yes" button grows each time No is clicked
+    // "Yes" button initial dimensions
     let yesButtonHeight = 48;
     let yesButtonWidth = 80;
     let yesFontSize = 20;
 
-    // Overlap check helper
+    // "No" button starts with some width & font size, both will shrink
+    let noButtonWidth = 200;
+    let noFontSize = 20;
+    const minButtonWidth = 80;       // don't shrink below this
+    const minFontSize = 8;          // don't shrink below this
+    const widthShrink = 20;         // how much to reduce the width each click
+    const fontShrink = 2;           // how much to reduce the font each click
+
+    // For overlap checks
     function doRectanglesOverlap(rect1, rect2) {
       return !(
         rect1.right < rect2.left ||
@@ -117,7 +125,7 @@
       );
     }
 
-    // Randomly move "No" button, avoiding overlap
+    // Move "No" button randomly (avoid center & yes)
     function moveButtonRandomly(btn) {
       btn.style.position = 'absolute';
 
@@ -142,6 +150,15 @@
           break;
         }
         attempts++;
+      }
+    }
+
+    // Make sure the text doesn't overflow horizontally.
+    // We'll keep shrinking the font until it fits or we hit minFontSize.
+    function ensureNoTextFits() {
+      while (noButton.scrollWidth > noButton.clientWidth && noFontSize > minFontSize) {
+        noFontSize -= 1;
+        noButton.style.fontSize = `${noFontSize}px`;
       }
     }
 
@@ -171,25 +188,33 @@
       yesButton.style.width = `${yesButtonWidth}px`;
       yesButton.style.fontSize = `${yesFontSize}px`;
 
-      // Cycle "No" button text
+      // "No" button shrinks
+      if (noButtonWidth > minButtonWidth) {
+        noButtonWidth = Math.max(minButtonWidth, noButtonWidth - widthShrink);
+        noButton.style.width = `${noButtonWidth}px`;
+      }
+      if (noFontSize > minFontSize) {
+        noFontSize = Math.max(minFontSize, noFontSize - fontShrink);
+        noButton.style.fontSize = `${noFontSize}px`;
+      }
+
+      // Update text
       noButton.textContent = texts[textIndex];
       textIndex = (textIndex + 1) % texts.length;
 
-      // After a few clicks, move "No" button randomly
+      // Check if text fits horizontally, reduce font if needed
+      ensureNoTextFits();
+
+      // After a few clicks, start random movement
       if (noClickCount > 2) {
         moveButtonRandomly(noButton);
       }
     });
 
     yesButton.addEventListener('click', () => {
-      // Show happy image
       imageDisplay.src = happyImage;
-
-      // Change text and hide buttons
-      valentineQuestion.textContent = "Yayyy!! I love you <3"; 
+      valentineQuestion.textContent = "Yayyy!! :3";
       responseButtons.style.display = 'none';
-
-      // Trigger confetti
       confetti();
     });
   </script>
