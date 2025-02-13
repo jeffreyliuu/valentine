@@ -29,11 +29,12 @@
         transform: translateY(-10px);
       }
     }
-    /* Force wrapping on the No button text if it gets smaller */
+    /* Allow multi-line wrapping and center the text inside the "No" button */
     #noButton {
       white-space: normal;
       word-break: break-word;
       text-align: center;
+      padding: 0.5rem; /* Ensure some padding around text */
     }
   </style>
 </head>
@@ -56,7 +57,7 @@
       <div class="flex gap-4 pt-[20px] items-center" id="responseButtons">
         <button
           id="yesButton"
-          class="bounce2 inline-flex items-center justify-center rounded-md text-[20px] font-medium disabled:pointer-events-none disabled:opacity-50 hover:bg-green-400 min-h-12 min-w-[75px] px-4 py-2 bg-green-500 text-white transition"
+          class="bounce2 inline-flex items-center justify-center rounded-md text-[20px] font-medium disabled:pointer-events-none disabled:opacity-50 hover:bg-green-400 min-w-[75px] px-4 py-2 bg-green-500 text-white transition"
         >
           Yes
         </button>
@@ -104,8 +105,8 @@
     let yesButtonWidth = 80;
     let yesFontSize = 20;
 
-    // "No" button dimensions (shrinks on each No)
-    let noButtonHeight = 48;
+    // We'll let the "No" button auto-adjust its height, 
+    // but still shrink in width + font size.
     let noButtonWidth = 80;
     let noFontSize = 20;
 
@@ -134,7 +135,6 @@
         const randomX = Math.floor(Math.random() * maxX);
         const randomY = Math.floor(Math.random() * maxY);
 
-        // Temporarily place the button
         btn.style.left = randomX + 'px';
         btn.style.top = randomY + 'px';
 
@@ -175,11 +175,10 @@
       yesButton.style.width = `${yesButtonWidth}px`;
       yesButton.style.fontSize = `${yesFontSize}px`;
 
-      // "No" button shrinks
-      noButtonHeight = Math.max(10, noButtonHeight - 5);
-      noButtonWidth = Math.max(30, noButtonWidth - 5);
-      noFontSize = Math.max(10, noFontSize - 2);
-      noButton.style.height = `${noButtonHeight}px`;
+      // "No" button shrinks horizontally & in font size, 
+      // but auto-adjusts height so text can always fit
+      noButtonWidth = Math.max(50, noButtonWidth - 10);  // Shrink in width
+      noFontSize = Math.max(10, noFontSize - 2);         // Shrink font
       noButton.style.width = `${noButtonWidth}px`;
       noButton.style.fontSize = `${noFontSize}px`;
 
