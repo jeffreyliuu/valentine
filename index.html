@@ -29,11 +29,13 @@
         transform: translateY(-10px);
       }
     }
-    /* Keep "No" button text on one line */
+    /* Keep the No button a fixed width so all text remains on one line */
     #noButton {
-      white-space: nowrap;
-      overflow: hidden;  /* no scrollbars */
+      width: 300px;       /* fixed width */
+      white-space: nowrap; 
+      overflow: hidden;   /* prevent horizontal scrollbars */
       text-align: center;
+      font-size: 16px;    /* adjust as needed */
       padding: 0.5rem;
     }
   </style>
@@ -63,7 +65,7 @@
         </button>
         <button
           id="noButton"
-          class="rounded-md font-medium transition disabled:pointer-events-none disabled:opacity-50 hover:bg-red-700 px-4 py-2 bg-red-500 text-white"
+          class="rounded-md font-medium transition disabled:pointer-events-none disabled:opacity-50 hover:bg-red-700 bg-red-500 text-white"
         >
           No
         </button>
@@ -96,20 +98,14 @@
     // Show the question image on load
     imageDisplay.src = questionImage;
 
-    // "No" click counters/indices
     let noClickCount = 0;
     let sadImageIndex = 0;
     let textIndex = 0;
 
-    // "Yes" button dimensions (grows each No)
+    // "Yes" button grows each time No is clicked
     let yesButtonHeight = 48;
     let yesButtonWidth = 80;
     let yesFontSize = 20;
-
-    // "No" button: shrink width, shrink font, keep on one line
-    let noButtonWidth = 80;
-    let noFontSize = 20;
-    const minFontSize = 8; // Hard stop so it doesn't go too small
 
     // Overlap check helper
     function doRectanglesOverlap(rect1, rect2) {
@@ -121,15 +117,7 @@
       );
     }
 
-    // Ensure "No" text fully fits on one line by shrinking the font as needed
-    function ensureNoTextFits() {
-      while (noButton.scrollWidth > noButton.clientWidth && noFontSize > minFontSize) {
-        noFontSize -= 1;
-        noButton.style.fontSize = `${noFontSize}px`;
-      }
-    }
-
-    // Randomly place "No" button, avoiding overlap
+    // Randomly move "No" button, avoiding overlap
     function moveButtonRandomly(btn) {
       btn.style.position = 'absolute';
 
@@ -183,18 +171,9 @@
       yesButton.style.width = `${yesButtonWidth}px`;
       yesButton.style.fontSize = `${yesFontSize}px`;
 
-      // "No" button shrinks (width & font). Keep on single line.
-      noButtonWidth = Math.max(40, noButtonWidth - 10);
-      noButton.style.width = `${noButtonWidth}px`;
-
-      noFontSize = Math.max(minFontSize, noFontSize - 2);
-      noButton.style.fontSize = `${noFontSize}px`;
-
-      // Set new text, then ensure it fits
+      // Cycle "No" button text
       noButton.textContent = texts[textIndex];
       textIndex = (textIndex + 1) % texts.length;
-
-      ensureNoTextFits();
 
       // After a few clicks, move "No" button randomly
       if (noClickCount > 2) {
