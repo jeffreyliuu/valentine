@@ -34,7 +34,7 @@
       white-space: normal;
       word-break: break-word;
       text-align: center;
-      padding: 0.5rem; /* Ensure some padding around text */
+      padding: 0.5rem;
     }
   </style>
 </head>
@@ -106,10 +106,10 @@
     let yesButtonWidth = 80;
     let yesFontSize = 20;
 
-    // We'll let the "No" button auto-adjust its height, 
-    // but still shrink in width + font size.
+    // "No" button dimensions (shrinks on each No)
     let noButtonWidth = 80;
     let noFontSize = 20;
+    let noButtonHeight = 48; // initial height
 
     // Overlap check helper
     function doRectanglesOverlap(rect1, rect2) {
@@ -176,11 +176,12 @@
       yesButton.style.width = `${yesButtonWidth}px`;
       yesButton.style.fontSize = `${yesFontSize}px`;
 
-      // "No" button shrinks horizontally & in font size, 
-      // but auto-adjusts height so text can always fit
-      noButtonWidth = Math.max(50, noButtonWidth - 10);  // Shrink in width
-      noFontSize = Math.max(10, noFontSize - 2);         // Shrink font
+      // "No" button shrinks: width, height, and font size
+      noButtonWidth = Math.max(50, noButtonWidth - 10);
+      noFontSize = Math.max(10, noFontSize - 2);
+      noButtonHeight = Math.max(30, noButtonHeight - 10);
       noButton.style.width = `${noButtonWidth}px`;
+      noButton.style.height = `${noButtonHeight}px`;
       noButton.style.fontSize = `${noFontSize}px`;
 
       // Cycle "No" button text
